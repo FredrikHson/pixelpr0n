@@ -9,13 +9,13 @@ int main(int argc, char** argv)
 
     SDL_Init(SDL_INIT_VIDEO);
 
-    SDL_Window* window = SDL_CreateWindow("SDL2 Pixel Drawing",
+    SDL_Window* window = SDL_CreateWindow("pixelpr0n",
                                           SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, 0);
 
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, 0);
     SDL_Texture* texture = SDL_CreateTexture(renderer,
-                           SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STATIC, 640, 480);
-    unsigned char* pixels = new unsigned char[640 * 480 * 3];
+                           SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STATIC, 320, 240);
+    unsigned char* pixels = new unsigned char[320 * 240 * 3];
 
     while(!quit)
     {
@@ -32,17 +32,17 @@ int main(int argc, char** argv)
         }
 
 
-        for(unsigned int i = 0; i < 640 * 480 * 3; i++)
+        for(unsigned int i = 0; i < 320 * 240 * 3; i++)
         {
 
             pixels[i] = rand() % 255;
         }
 
-        //for(unsigned int y = 0; y < 480 - 1; y++)
+        //for(unsigned int y = 0; y < 240 - 1; y++)
         //{
-            //for(unsigned int x = 0; x < 640; x++)
+            //for(unsigned int x = 0; x < 320; x++)
             //{
-                //unsigned int thispixeloffset = x * 3 + y * 640 * 3;
+                //unsigned int thispixeloffset = x * 3 + y * 320 * 3;
 
                 //pixels[thispixeloffset] = 0;
                 //pixels[thispixeloffset+1] = 0;
@@ -51,7 +51,7 @@ int main(int argc, char** argv)
         //}
 
 
-        SDL_UpdateTexture(texture, NULL, pixels, 640 * 3);
+        SDL_UpdateTexture(texture, NULL, pixels, 320 * 3);
         SDL_RenderClear(renderer);
         SDL_RenderCopy(renderer, texture, NULL, NULL);
         SDL_RenderPresent(renderer);
