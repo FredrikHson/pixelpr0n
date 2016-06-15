@@ -11,6 +11,7 @@ add_definitions(${SDL2_DEFINITIONS})
 
 set(COMMON_SRC
     "src/main.cpp"
+    "src/fire.cpp"
     )
 
 include_directories(

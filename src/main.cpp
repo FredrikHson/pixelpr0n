@@ -1,5 +1,11 @@
-#include <iostream>
 #include <SDL.h>
+#include "fire.h"
+#include "globals.h"
+
+unsigned int width = 320;
+unsigned int height = 240;
+unsigned char* pixels = 0;
+float deltatime=1.0f;
 
 int main(int argc, char** argv)
 {
@@ -15,7 +21,8 @@ int main(int argc, char** argv)
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, 0);
     SDL_Texture* texture = SDL_CreateTexture(renderer,
                            SDL_PIXELFORMAT_ABGR8888, SDL_TEXTUREACCESS_STATIC, 320, 240);
-    unsigned char* pixels = new unsigned char[320 * 240 * 4];
+    pixels = new unsigned char[320 * 240 * 4];
+    long last = 0;
 
     while(!quit)
     {
@@ -31,28 +38,10 @@ int main(int argc, char** argv)
             }
         }
 
+        long now = SDL_GetTicks();
+        deltatime = ((float)(now - last)) / 1000.0f;;
 
-        for(unsigned int i = 0; i < 320*240; i++)
-        {
-
-            pixels[i*4] = rand() % 255;
-            pixels[i*4+1] = rand() % 255;
-            pixels[i*4+2] = rand() % 255;
-        }
-
-        for(unsigned int y = 1; y < rand()%240 ; y++)
-        {
-            for(unsigned int x = 0; x < 320; x++)
-            {
-                unsigned int thispixeloffset = x * 4 + y * 320 * 4;
-                unsigned int underpixeloffset = x * 4 + (y-1) * 320 * 4;
-
-                pixels[thispixeloffset] = pixels[underpixeloffset];
-                pixels[thispixeloffset + 1] = pixels[underpixeloffset+1];
-                pixels[thispixeloffset + 2] = pixels[underpixeloffset+2];
-            }
-        }
-
+        drawFire();
 
         SDL_UpdateTexture(texture, NULL, pixels, 320 * 4);
         SDL_RenderCopy(renderer, texture, NULL, NULL);
