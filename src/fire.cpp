@@ -14,7 +14,8 @@ unsigned int heatbuffer_w = 0;
 unsigned int heatbuffer_h = 0;
 unsigned char* heatbuffer = 0;
 unsigned char FirePal[768];
-ball balls[100];
+#define NUMBALLS 500
+ball balls[NUMBALLS];
 inline unsigned char lerp(unsigned char x1, unsigned char x2, float p)
 {
     return (unsigned char)((float)x1 * (1.0f - p) + (float)x2 * p);
@@ -56,7 +57,7 @@ void init_firepal()
 
 void init_balls()
 {
-    for(int i = 0; i < 100; i++)
+    for(int i = 0; i < NUMBALLS; i++)
     {
         balls[i].x = rand() % heatbuffer_w;
         balls[i].y = rand() % heatbuffer_h;
@@ -141,7 +142,7 @@ void drawFire()
     }
 
     //printf("x:%f y:%f vx:%f vy:%f\n",balls[0].x,balls[0].y,balls[0].vx,balls[0].vy);
-    for(int i = 0; i < 100; i++)
+    for(int i = 0; i < NUMBALLS; i++)
     {
         updatePhysics(balls[i]);
         unsigned int offset = (int)balls[i].x + (int)balls[i].y * heatbuffer_w;
