@@ -75,13 +75,9 @@ void init_heatbuffer()
 {
     if(heatbuffer_w != (width + 2) || heatbuffer_h != (height + 1))
     {
-
-        printf("resizing fire buffer\n");
-        printf("old:%ix%i\n", heatbuffer_w, heatbuffer_w);
         destroyFire();
         heatbuffer_w = width + 2;
         heatbuffer_h = height + 1;
-        printf("new:%ix%i\n", heatbuffer_w, heatbuffer_w);
         heatbuffer = new unsigned char[heatbuffer_w * heatbuffer_h];
         init_firepal();
         init_balls();
