@@ -4,11 +4,17 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+struct ball
+{
+    float x, y, r;
+    float vx, vy;
+};
+
 unsigned int heatbuffer_w = 0;
 unsigned int heatbuffer_h = 0;
 unsigned char* heatbuffer = 0;
 unsigned char FirePal[768];
-
+ball balls[100];
 inline unsigned char lerp(unsigned char x1, unsigned char x2, float p)
 {
     return (unsigned char)((float)x1 * (1.0f - p) + (float)x2 * p);
@@ -47,6 +53,18 @@ void init_firepal()
         FirePal[offset + 2] = lerp(0, 255, (float)i / 64.0f);
     }
 }
+
+void init_balls()
+{
+    for(int i = 0; i < 100; i++)
+    {
+        balls[i].x = rand() % heatbuffer_w;
+        balls[i].y = rand() % heatbuffer_h;
+        balls[i].vx = (float)(rand() % 2000) / 10.0f - 10.0f;
+        balls[i].vy = (float)(rand() % 2000) / 10.0f - 10.0f;
+    }
+}
+
 void init_heatbuffer()
 {
     if(heatbuffer_w != (width + 2) || heatbuffer_h != (height + 1))
@@ -60,6 +78,7 @@ void init_heatbuffer()
         printf("new:%ix%i\n", heatbuffer_w, heatbuffer_w);
         heatbuffer = new unsigned char[heatbuffer_w * heatbuffer_h];
         init_firepal();
+        init_balls();
     }
 }
 void destroyFire()
@@ -73,24 +92,73 @@ void destroyFire()
     }
 }
 
+void updatePhysics(ball& b)
+{
+    b.x += b.vx * deltatime;
+    b.y += b.vy * deltatime;
+
+    if(b.x > heatbuffer_w)
+    {
+        b.vx *= -1;
+        b.x = heatbuffer_w - 1;
+    }
+
+    if(b.y > heatbuffer_h)
+    {
+        b.vy *= -1;
+        b.y = heatbuffer_h - 1;
+    }
+
+    if(b.x <= 0)
+    {
+        b.vx *= -1;
+        b.x = 0;
+    }
+
+    if(b.y <= 0)
+    {
+        b.vy *= -1;
+        b.y = 0;
+    }
+
+    b.vy += 9.8 * 9.8 * deltatime;
+
+}
 void drawFire()
 {
     init_heatbuffer();
 
-    heatbuffer[rand() % (heatbuffer_w * heatbuffer_h)] = 255;
 
     for(int i = 0; i < heatbuffer_w; i++)
     {
-        unsigned int o = heatbuffer_w * (heatbuffer_h - 1) +i;
-        if(heatbuffer[o]>7)
-        heatbuffer[o] -= 8;
+        unsigned int o = heatbuffer_w * (heatbuffer_h - 1) + i;
+
+        if(heatbuffer[o] > 0)
+        {
+            heatbuffer[o] -= 1;
+        }
 
     }
-    for(int i = 0; i < heatbuffer_w/10; i++)
+
+    //printf("x:%f y:%f vx:%f vy:%f\n",balls[0].x,balls[0].y,balls[0].vx,balls[0].vy);
+    for(int i = 0; i < 100; i++)
     {
-        unsigned int o = heatbuffer_w * (heatbuffer_h - 1) + rand() % heatbuffer_w;
-        heatbuffer[o] = (rand() % 55) + 200;
+        updatePhysics(balls[i]);
+        unsigned int offset = (int)balls[i].x + (int)balls[i].y * heatbuffer_w;
+
+        if(offset > heatbuffer_w * heatbuffer_h - 1)
+        {
+            offset = heatbuffer_w * heatbuffer_h - 1;
+        }
+
+        heatbuffer[offset] = 255;
     }
+
+    //for(int i = 0; i < heatbuffer_w / 10; i++)
+    //{
+    //unsigned int o = heatbuffer_w * (heatbuffer_h - 1) + rand() % heatbuffer_w;
+    //heatbuffer[o] = (rand() % 55) + 200;
+    //}
 
     for(unsigned int y = 0; y < heatbuffer_h; y++)
     {
