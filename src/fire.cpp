@@ -3,6 +3,7 @@
 #include "fpscounter.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <math.h>
 
 struct ball
 {
@@ -14,7 +15,7 @@ unsigned int heatbuffer_w = 0;
 unsigned int heatbuffer_h = 0;
 unsigned char* heatbuffer = 0;
 unsigned char FirePal[768];
-#define NUMBALLS 500
+#define NUMBALLS 350
 ball balls[NUMBALLS];
 inline unsigned char lerp(unsigned char x1, unsigned char x2, float p)
 {
@@ -54,15 +55,19 @@ void init_firepal()
         FirePal[offset + 2] = lerp(0, 255, (float)i / 64.0f);
     }
 }
+void spawn_ball(ball& b)
+{
 
+    b.x = rand() % heatbuffer_w;
+    b.y = rand() % heatbuffer_h;
+    b.vx = (float)(rand() % 2000) / 10.0f - 10.0f;
+    b.vy = (float)(rand() % 2000) / 10.0f - 10.0f;
+}
 void init_balls()
 {
     for(int i = 0; i < NUMBALLS; i++)
     {
-        balls[i].x = rand() % heatbuffer_w;
-        balls[i].y = rand() % heatbuffer_h;
-        balls[i].vx = (float)(rand() % 2000) / 10.0f - 10.0f;
-        balls[i].vy = (float)(rand() % 2000) / 10.0f - 10.0f;
+        spawn_ball(balls[i]);
     }
 }
 
@@ -106,8 +111,13 @@ void updatePhysics(ball& b)
 
     if(b.y > heatbuffer_h)
     {
-        b.vy *= -1;
+        b.vy *= -0.8 + (float)(rand() % 200) / 1000;
         b.y = heatbuffer_h - 1;
+
+        if(fabs(b.vy) < 29.0)
+        {
+            spawn_ball(b);
+        }
     }
 
     if(b.x <= 0)
@@ -141,7 +151,6 @@ void drawFire()
 
     }
 
-    //printf("x:%f y:%f vx:%f vy:%f\n",balls[0].x,balls[0].y,balls[0].vx,balls[0].vy);
     for(int i = 0; i < NUMBALLS; i++)
     {
         updatePhysics(balls[i]);
@@ -152,7 +161,7 @@ void drawFire()
             offset = heatbuffer_w * heatbuffer_h - 1;
         }
 
-        heatbuffer[offset] = 255;
+        heatbuffer[offset] = ((sin(abstime * 50 + ((float)i) / 100) + 1) * 0.15f + 0.7f) * 255;
     }
 
     //for(int i = 0; i < heatbuffer_w / 10; i++)

@@ -3,10 +3,11 @@
 #include "fire.h"
 #include "globals.h"
 
-unsigned int width = 320;
-unsigned int height = 240;
+unsigned int width    = 320;
+unsigned int height   = 240;
 unsigned char* pixels = 0;
-float deltatime = 1.0f;
+float deltatime       = 1.0f;
+float abstime         = 0.0f;
 void printhelp()
 {
     printf("-f   fire effect\n");
@@ -75,6 +76,7 @@ int main(int argc, char** argv)
         long now = SDL_GetTicks();
         deltatime = ((float)(now - last)) / 1000.0f;;
         last = now;
+        abstime += deltatime;
 
         if(fire)
         {
