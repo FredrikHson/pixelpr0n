@@ -12,8 +12,8 @@ void printFps()
 
     if(timesincelast > 2.0)
     {
-        printf("%ifps\n", frames/2);
-        frames=0;
+        printf("%ifps\n", frames / 2);
+        frames = 0;
         timesincelast = 0;
     }
 }
