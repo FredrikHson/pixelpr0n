@@ -4,7 +4,7 @@
 #include <memory.h>
 #include <stdlib.h>
 
-
+unsigned int openhole = 10;
 void init_sand()
 {
     static unsigned int sand_w = 0;
@@ -16,11 +16,17 @@ void init_sand()
         sand_w = width;
         sand_h = height;
         memset(pixels, 0, width * height * 4);
+        openhole = height * 2; // make sure to "close" the hole so we don't zero memory outside the buffer when resizing
     }
 }
 void createnewgrain()
 {
     unsigned int rpix = ((rand() % width) + (rand() % 5) * width + width) * 4;
+
+    if(rpix >= width * height * 4)
+    {
+        rpix = 0;
+    }
 
     if(pixels[rpix + 3] == 0)
     {
@@ -34,10 +40,11 @@ void createnewgrain()
 }
 void drawSand() // alpha stores the sand existance or not so even black sand can be used
 {
+    init_sand();
     static float delta = 0;
     delta += deltatime;
 
-    if(delta > 1.0f / 600.0f)
+    if(delta > 1.0f / 240.0f)
     {
         delta = 0;
     }
@@ -126,28 +133,38 @@ void drawSand() // alpha stores the sand existance or not so even black sand can
     static unsigned int holesize  = 0; //(rand() % (width/8)) + 20;
     static unsigned int holepos   = 0;//(rand() % width) - holesize;
     static unsigned int holedepth = 5;
-    static unsigned int openhole  = 10;
 
     if(rand() % 10 && openhole >= holedepth)
     {
-        holesize = (rand() % (width / 8)) + 20;
+        holesize = (rand() % (width / 4)) + 20;
+
+        if(holesize > width)
+        {
+            holesize = width / 2;
+        }
+
         holepos = (rand() % width) - holesize;
         holedepth = rand() % (height / 3) + 10;
-        openhole=0;
+        openhole = 0;
 
     }
 
-    if(openhole<holedepth)
+    if(openhole < holedepth)
     {
         openhole++;
-    for(unsigned int i = 0; i < holesize; i++)
-    {
-        unsigned int offset = (holepos + i + (height - 2) * width) * 4;
-        pixels[offset] = 0;
-        pixels[offset + 1] = 0;
-        pixels[offset + 2] = 0;
-        pixels[offset + 3] = 0;
-    }
+
+        for(unsigned int i = 0; i < holesize; i++)
+        {
+            unsigned int offset = (holepos + i + (height - 2) * width) * 4;
+
+            if(offset < width * height * 4 - 4)
+            {
+                pixels[offset] = 0;
+                pixels[offset + 1] = 0;
+                pixels[offset + 2] = 0;
+                pixels[offset + 3] = 0;
+            }
+        }
     }
 
     printFps();
