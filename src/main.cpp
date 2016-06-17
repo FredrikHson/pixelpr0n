@@ -109,6 +109,13 @@ int main(int argc, char** argv)
             }
         }
 
+        const unsigned char* state = SDL_GetKeyboardState(0);
+
+        if(state[SDL_SCANCODE_ESCAPE])
+        {
+            quit = true;
+        }
+
         long now = SDL_GetTicks();
         deltatime = ((float)(now - last)) / 1000.0f;;
         last = now;
