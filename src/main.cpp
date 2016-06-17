@@ -1,7 +1,9 @@
 #include <SDL.h>
 #include <unistd.h>
 #include "fire.h"
+#include "sand.h"
 #include "globals.h"
+#include "fpscounter.h"
 
 unsigned int width    = 320;
 unsigned int height   = 240;
@@ -18,6 +20,7 @@ int main(int argc, char** argv)
 
     // add more effects as bools here and then in getopt+printhelp+in the while loop
     bool fire = false;
+    bool sand = false;
 
     SDL_Event event;
 
@@ -39,7 +42,7 @@ int main(int argc, char** argv)
         return 0;
     }
 
-    while((c = getopt(argc, argv, "hf")) != -1)
+    while((c = getopt(argc, argv, "hfs")) != -1)
     {
         switch(c)
         {
@@ -47,6 +50,12 @@ int main(int argc, char** argv)
             case 'f':
             {
                 fire = true;
+                break;
+            }
+
+            case 's':
+            {
+                sand = true;
                 break;
             }
 
@@ -110,6 +119,11 @@ int main(int argc, char** argv)
             drawFire();
         }
 
+        if(sand)
+        {
+            drawSand();
+        }
+
         SDL_UpdateTexture(texture, NULL, pixels, width * 4);
         SDL_RenderCopy(renderer, texture, NULL, NULL);
         SDL_RenderPresent(renderer);
@@ -117,6 +131,7 @@ int main(int argc, char** argv)
     }
 
     destroyFire();
+    destroySand();
     delete[] pixels;
     SDL_DestroyTexture(texture);
     SDL_DestroyRenderer(renderer);
