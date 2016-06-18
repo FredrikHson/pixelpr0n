@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include "fire.h"
 #include "sand.h"
+#include "liquid.hpp"
 #include "globals.h"
 #include "fpscounter.h"
 
@@ -10,28 +11,48 @@ unsigned int height   = 240;
 unsigned char* pixels = 0;
 float deltatime       = 1.0f;
 float abstime         = 0.0f;
+
+enum Effect {
+    FIRE,
+    LIQUID,
+    SAND
+};
+
 void printhelp()
 {
     printf("-f   fire effect\n");
+    printf("-l   liquid effect\n");
+    printf("-s   sand effect\n");
 }
 int main(int argc, char** argv)
 {
     bool quit = false;
 
     // add more effects as bools here and then in getopt+printhelp+in the while loop
-    bool fire = false;
-    bool sand = false;
+    Effect effect;
 
     SDL_Event event;
 
     SDL_Init(SDL_INIT_VIDEO);
 
-    SDL_Window* window = SDL_CreateWindow("pixelpr0n",
-                                          SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width * 2, height * 2, SDL_WINDOW_RESIZABLE);
+    SDL_Window* window = SDL_CreateWindow(
+        "pixelpr0n",
+        SDL_WINDOWPOS_UNDEFINED, 
+        SDL_WINDOWPOS_UNDEFINED, 
+        width * 2, 
+        height * 2, 
+        SDL_WINDOW_RESIZABLE
+    );
 
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, 0);
-    SDL_Texture* texture = SDL_CreateTexture(renderer,
-                           SDL_PIXELFORMAT_ABGR8888, SDL_TEXTUREACCESS_STATIC, width, height);
+    SDL_Texture* texture = SDL_CreateTexture(
+        renderer,
+        SDL_PIXELFORMAT_ABGR8888, 
+        SDL_TEXTUREACCESS_STATIC,
+        width,
+        height
+    );
+
     pixels = new unsigned char[width * height * 4];
     long last = 0;
     int c;
@@ -42,20 +63,27 @@ int main(int argc, char** argv)
         return 0;
     }
 
-    while((c = getopt(argc, argv, "hfs")) != -1)
+    while((c = getopt(argc, argv, "hfls")) != -1)
     {
         switch(c)
         {
 
             case 'f':
             {
-                fire = true;
+                effect = FIRE;
+                break;
+            }
+
+            case 'l':
+            {
+                effect = LIQUID;
+                liquid.init();
                 break;
             }
 
             case 's':
             {
-                sand = true;
+                effect = SAND;
                 break;
             }
 
@@ -99,8 +127,13 @@ int main(int argc, char** argv)
                                 SDL_DestroyTexture(texture);
                             }
 
-                            texture = SDL_CreateTexture(renderer,
-                                                        SDL_PIXELFORMAT_ABGR8888, SDL_TEXTUREACCESS_STATIC, width, height);
+                            texture = SDL_CreateTexture(
+                                renderer,
+                                SDL_PIXELFORMAT_ABGR8888, 
+                                SDL_TEXTUREACCESS_STATIC, 
+                                width, 
+                                height
+                            );
                             break;
                     }
 
@@ -121,14 +154,20 @@ int main(int argc, char** argv)
         last = now;
         abstime += deltatime;
 
-        if(fire)
+        switch(effect) 
         {
-            drawFire();
-        }
-
-        if(sand)
-        {
-            drawSand();
+            case FIRE: 
+            {
+                drawFire();
+            } break;
+            case LIQUID: 
+            {
+                liquid.simulate();
+            } break;
+            case SAND:
+            {
+                drawSand();
+            } break;
         }
 
         SDL_UpdateTexture(texture, NULL, pixels, width * 4);
@@ -137,8 +176,18 @@ int main(int argc, char** argv)
 
     }
 
-    destroyFire();
-    destroySand();
+    switch(effect)
+    {
+        case FIRE: 
+            destroyFire();
+            break;
+        case SAND: 
+            destroySand();
+            break;
+        default:
+            break;
+    }
+
     delete[] pixels;
     SDL_DestroyTexture(texture);
     SDL_DestroyRenderer(renderer);
