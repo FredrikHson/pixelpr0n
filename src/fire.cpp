@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <memory.h>
 
 struct ball
 {
@@ -79,6 +80,7 @@ void init_heatbuffer()
         heatbuffer_w = width + 2;
         heatbuffer_h = height + 1;
         heatbuffer = new unsigned char[heatbuffer_w * heatbuffer_h];
+        memset(heatbuffer,0,heatbuffer_w*heatbuffer_h);
         init_firepal();
         init_balls();
     }

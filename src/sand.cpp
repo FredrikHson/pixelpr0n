@@ -85,7 +85,7 @@ void drawSand() // alpha stores the sand existance or not so even black sand can
 
     for(unsigned int y = height - 2; y > 0; y--)
     {
-        for(unsigned int x = width - 1; x > 2; x--)
+        for(unsigned int x = width - 2; x > 2; x--)
         {
             unsigned int offset = (x + y * width) * 4;
 
