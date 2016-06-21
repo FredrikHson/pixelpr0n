@@ -3,6 +3,7 @@
 #include <memory.h>
 #include "fire.h"
 #include "sand.h"
+#include "burningsand.h"
 #include "liquid.hpp"
 #include "globals.h"
 #include "fpscounter.h"
@@ -17,7 +18,8 @@ enum Effect
 {
     FIRE,
     LIQUID,
-    SAND
+    SAND,
+    BURNING_SAND
 };
 
 void printhelp()
@@ -66,7 +68,7 @@ int main(int argc, char** argv)
         return 0;
     }
 
-    while((c = getopt(argc, argv, "hfls")) != -1)
+    while((c = getopt(argc, argv, "hflsb")) != -1)
     {
         switch(c)
         {
@@ -87,6 +89,12 @@ int main(int argc, char** argv)
             case 's':
             {
                 effect = SAND;
+                break;
+            }
+
+            case 'b':
+            {
+                effect = BURNING_SAND;
                 break;
             }
 
@@ -163,20 +171,26 @@ int main(int argc, char** argv)
             case FIRE:
             {
                 drawFire();
+                break;
             }
-            break;
 
             case LIQUID:
             {
                 liquid.simulate();
+                break;
             }
-            break;
 
             case SAND:
             {
                 drawSand();
+                break;
             }
-            break;
+
+            case BURNING_SAND:
+            {
+                drawBurningSand();
+                break;
+            }
         }
 
         SDL_UpdateTexture(texture, NULL, pixels, width * 4);
@@ -194,6 +208,9 @@ int main(int argc, char** argv)
         case SAND:
             destroySand();
             break;
+
+        case BURNING_SAND:
+            destroyBurningSand();
 
         default:
             break;
