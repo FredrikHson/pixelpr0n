@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include "fire.h"
 #include "sand.h"
+#include "burningsand.h"
 #include "liquid.hpp"
 #include "globals.h"
 #include "fpscounter.h"
@@ -12,10 +13,12 @@ unsigned char* pixels = 0;
 float deltatime       = 1.0f;
 float abstime         = 0.0f;
 
-enum Effect {
+enum Effect
+{
     FIRE,
     LIQUID,
-    SAND
+    SAND,
+    BURNING_SAND
 };
 
 void printhelp()
@@ -36,22 +39,22 @@ int main(int argc, char** argv)
     SDL_Init(SDL_INIT_VIDEO);
 
     SDL_Window* window = SDL_CreateWindow(
-        "pixelpr0n",
-        SDL_WINDOWPOS_UNDEFINED, 
-        SDL_WINDOWPOS_UNDEFINED, 
-        width * 2, 
-        height * 2, 
-        SDL_WINDOW_RESIZABLE
-    );
+                             "pixelpr0n",
+                             SDL_WINDOWPOS_UNDEFINED,
+                             SDL_WINDOWPOS_UNDEFINED,
+                             width * 2,
+                             height * 2,
+                             SDL_WINDOW_RESIZABLE
+                         );
 
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, 0);
     SDL_Texture* texture = SDL_CreateTexture(
-        renderer,
-        SDL_PIXELFORMAT_ABGR8888, 
-        SDL_TEXTUREACCESS_STATIC,
-        width,
-        height
-    );
+                               renderer,
+                               SDL_PIXELFORMAT_ABGR8888,
+                               SDL_TEXTUREACCESS_STATIC,
+                               width,
+                               height
+                           );
 
     pixels = new unsigned char[width * height * 4];
     long last = 0;
@@ -63,7 +66,7 @@ int main(int argc, char** argv)
         return 0;
     }
 
-    while((c = getopt(argc, argv, "hfls")) != -1)
+    while((c = getopt(argc, argv, "hflsb")) != -1)
     {
         switch(c)
         {
@@ -84,6 +87,12 @@ int main(int argc, char** argv)
             case 's':
             {
                 effect = SAND;
+                break;
+            }
+
+            case 'b':
+            {
+                effect = BURNING_SAND;
                 break;
             }
 
@@ -128,12 +137,12 @@ int main(int argc, char** argv)
                             }
 
                             texture = SDL_CreateTexture(
-                                renderer,
-                                SDL_PIXELFORMAT_ABGR8888, 
-                                SDL_TEXTUREACCESS_STATIC, 
-                                width, 
-                                height
-                            );
+                                          renderer,
+                                          SDL_PIXELFORMAT_ABGR8888,
+                                          SDL_TEXTUREACCESS_STATIC,
+                                          width,
+                                          height
+                                      );
                             break;
                     }
 
@@ -154,20 +163,31 @@ int main(int argc, char** argv)
         last = now;
         abstime += deltatime;
 
-        switch(effect) 
+        switch(effect)
         {
-            case FIRE: 
+            case FIRE:
             {
                 drawFire();
-            } break;
-            case LIQUID: 
+                break;
+            }
+
+            case LIQUID:
             {
                 liquid.simulate();
-            } break;
+                break;
+            }
+
             case SAND:
             {
                 drawSand();
-            } break;
+                break;
+            }
+
+            case BURNING_SAND:
+            {
+                drawBurningSand();
+                break;
+            }
         }
 
         SDL_UpdateTexture(texture, NULL, pixels, width * 4);
@@ -178,12 +198,17 @@ int main(int argc, char** argv)
 
     switch(effect)
     {
-        case FIRE: 
+        case FIRE:
             destroyFire();
             break;
-        case SAND: 
+
+        case SAND:
             destroySand();
             break;
+
+        case BURNING_SAND:
+            destroyBurningSand();
+
         default:
             break;
     }

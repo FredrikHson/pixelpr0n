@@ -14,6 +14,7 @@ set(COMMON_SRC
     "src/fire.cpp"
     "src/liquid.cpp"
     "src/sand.cpp"
+    "src/burningsand.cpp"
     "src/fpscounter.cpp"
     )
 
