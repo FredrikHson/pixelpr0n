@@ -4,6 +4,7 @@
 #include <memory.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include "fire.h"
 
 /*
  * pixel buffer of these grains
@@ -35,6 +36,7 @@ void init_burningSand()
         sand_w = width + 2; // +2 to avoid ifcases in the sand physics loop
         sand_h = height;
         sandbuffer = new sandgrain[sand_w * sand_h];
+        init_firepal();
     }
 }
 void createnewfuelgrain()
@@ -58,16 +60,19 @@ void createnewfuelgrain()
 
     if(sandbuffer[offset].remainingfuel == 0)
     {
-        unsigned char color = (int)(abstime * 255 + offset / 60) % 200;
-        color += 55;
+        //unsigned char color = (int)(abstime * 55 + offset / 60) % 50;
+        //color += 25;
+        unsigned char color = (int)(abstime * 55 + offset / 60) % 50;
+        color += 25;
 
         sandbuffer[offset].remainingfuel = rand() % 55 + 200;
-        sandbuffer[offset].heat = 0;
+        sandbuffer[offset].heat = (((rand() % 200)) / 199) * 105;
         sandbuffer[offset].color[0] = color;
-        sandbuffer[offset].color[1] = color;
-        sandbuffer[offset].color[2] = color;
+        sandbuffer[offset].color[1] = color / 2;
+        sandbuffer[offset].color[2] = color / 3;
     }
 }
+
 void updateSandPhysics()
 {
     static unsigned char frame = 0;
@@ -119,7 +124,55 @@ void updateSandPhysics()
 
 void updateFire()
 {
+    // remove fuel from hot grains and add more heat
+    for(unsigned int y = 0; y < sand_h; y++)
+    {
+        unsigned int sand_offset_y = y * sand_w;
 
+        for(unsigned int x = 1; x < sand_w - 1; x++)
+        {
+            if(sandbuffer[sand_offset_y + x].remainingfuel > 0)
+            {
+                if(sandbuffer[sand_offset_y + x].heat > 50)
+                {
+                    sandbuffer[sand_offset_y + x].remainingfuel -= 1;
+
+                    if(sandbuffer[sand_offset_y + x].heat < 250)
+                    {
+                        sandbuffer[sand_offset_y + x].heat += 2;
+                    }
+                }
+            }
+            else if(sandbuffer[sand_offset_y + x].heat > 0)
+            {
+                sandbuffer[sand_offset_y + x].heat -= 1;
+            }
+        }
+    }
+
+    for(unsigned int y = 1; y < sand_h; y++)
+    {
+        unsigned int sand_offset_y = y * sand_w;
+
+        for(unsigned int x = 1; x < sand_w - 1; x++)
+        {
+            unsigned int pos = sand_offset_y + x;
+            unsigned short heat = 0;
+            unsigned char oldheat = sandbuffer[pos].heat;
+            heat += sandbuffer[pos].heat;
+            heat += sandbuffer[pos - 1].heat;
+            heat += sandbuffer[pos + 1].heat;
+            heat += sandbuffer[pos + sand_w].heat * 6;
+            heat /= 9;
+
+            if(heat < oldheat && sandbuffer[pos].remainingfuel!=0)
+            {
+                heat = oldheat;
+            }
+
+            sandbuffer[pos].heat = heat;
+        }
+    }
 }
 
 void drawBurningSand() // alpha stores the sand existance or not so even black sand can be used
@@ -148,9 +201,20 @@ void drawBurningSand() // alpha stores the sand existance or not so even black s
 
         for(unsigned int x = 0; x < width; x++)
         {
-            pixels[pixel_offset_y + x * 4] = sandbuffer[sand_offset_y + x + 1].color[0];
-            pixels[pixel_offset_y + x * 4 + 1] = sandbuffer[sand_offset_y + x + 1].color[1];
-            pixels[pixel_offset_y + x * 4 + 2] = sandbuffer[sand_offset_y + x + 1].color[2];
+            sandgrain* grain = &sandbuffer[sand_offset_y + x + 1];
+            unsigned int pixel_offset = pixel_offset_y + x * 4;
+            unsigned char c2[3] =
+            {
+                FirePal[grain->heat * 3],
+                FirePal[grain->heat * 3 + 1],
+                FirePal[grain->heat * 3 + 2]
+            };
+            pixels[pixel_offset]     = (int)(255 - (((255 - grain->color[0]) * (255 - c2[0])) / 255));
+            pixels[pixel_offset + 1] = (int)(255 - (((255 - grain->color[0]) * (255 - c2[1])) / 255));
+            pixels[pixel_offset + 2] = (int)(255 - (((255 - grain->color[0]) * (255 - c2[2])) / 255));
+            //pixels[pixel_offset]     = grain->color[0];
+            //pixels[pixel_offset + 1] = grain->color[0];
+            //pixels[pixel_offset + 2] = grain->color[0];
 
         }
     }

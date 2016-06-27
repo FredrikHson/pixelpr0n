@@ -27,17 +27,17 @@ void init_firepal()
     for(unsigned int i = 0; i < 64; i++)
     {
         unsigned int offset = (i) * 3;
-        FirePal[offset]     = lerp(0, 96, (float)i / 64.0f);
-        FirePal[offset + 1] = lerp(0, 96, (float)i / 64.0f);
-        FirePal[offset + 2] = lerp(0, 96, (float)i / 64.0f);
+        FirePal[offset]     = lerp(0, 32, (float)i / 64.0f);
+        FirePal[offset + 1] = lerp(0, 32, (float)i / 64.0f);
+        FirePal[offset + 2] = lerp(0, 32, (float)i / 64.0f);
     }
 
     for(unsigned int i = 0; i < 64; i++)
     {
         unsigned int offset = (i + 64) * 3;
-        FirePal[offset]     = lerp(96, 255, (float)i / 64.0f);
-        FirePal[offset + 1] = lerp(96, 0, (float)i / 64.0f);
-        FirePal[offset + 2] = lerp(96, 0, (float)i / 64.0f);
+        FirePal[offset]     = lerp(32, 255, (float)i / 64.0f);
+        FirePal[offset + 1] = lerp(32, 0, (float)i / 64.0f);
+        FirePal[offset + 2] = lerp(32, 0, (float)i / 64.0f);
     }
 
     for(unsigned int i = 0; i < 64; i++)
