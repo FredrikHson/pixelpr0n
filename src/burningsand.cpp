@@ -41,8 +41,15 @@ void init_burningSand()
 }
 void createnewfuelgrain()
 {
-    static float pos = 0;
-    pos += deltatime * 5;
+    static float  pos = 0;
+    static int frames = 0;
+    frames++;
+
+    if(frames > 50)
+    {
+        pos = rand() % sand_w;
+        frames = 0;
+    }
 
     if(pos > sand_w - 51)
     {
@@ -65,8 +72,8 @@ void createnewfuelgrain()
         unsigned char color = (int)(abstime * 55 + offset / 60) % 50;
         color += 25;
 
-        sandbuffer[offset].remainingfuel = rand() % 55 + 200;
-        sandbuffer[offset].heat = (((rand() % 200)) / 199) * 105;
+        sandbuffer[offset].remainingfuel = rand() % 55 + 100;
+        sandbuffer[offset].heat = (((rand() % 2000)) / 1999) * 105;
         sandbuffer[offset].color[0] = color;
         sandbuffer[offset].color[1] = color / 2;
         sandbuffer[offset].color[2] = color / 3;
@@ -89,18 +96,22 @@ void updateSandPhysics()
 
         for(unsigned int x = 1; x < sand_w - 1; x++)
         {
-            if(sandbuffer[sand_offset_y + sand_w + x].remainingfuel == 0)
+            if(sandbuffer[sand_offset_y + x].remainingfuel != 0)
             {
-                sandbuffer[sand_offset_y + sand_w + x] = sandbuffer[sand_offset_y + x];
-                sandbuffer[sand_offset_y + sand_w + x].frame = frame;
-                sandbuffer[sand_offset_y + x] = {0};
-            }
-            else if(sandbuffer[sand_offset_y + sand_w + x + 1].remainingfuel == 0 &&
-                    sandbuffer[sand_offset_y + x].frame != frame)
-            {
-                sandbuffer[sand_offset_y + sand_w + 1 + x] = sandbuffer[sand_offset_y + x];
-                sandbuffer[sand_offset_y + sand_w + 1 + x].frame = frame;
-                sandbuffer[sand_offset_y + x] = {0};
+                if(sandbuffer[sand_offset_y + sand_w + x].remainingfuel == 0)
+                {
+                    sandbuffer[sand_offset_y + sand_w + x] = sandbuffer[sand_offset_y + x];
+                    sandbuffer[sand_offset_y + sand_w + x].frame = frame;
+                    sandbuffer[sand_offset_y + x] = {0};
+                }
+                else if(sandbuffer[sand_offset_y + sand_w + x + 1].remainingfuel == 0 &&
+                        sandbuffer[sand_offset_y + x].frame != frame)
+                {
+                    sandbuffer[sand_offset_y + sand_w + 1 + x] = sandbuffer[sand_offset_y + x];
+                    sandbuffer[sand_offset_y + sand_w + 1 + x].frame = frame;
+                    sandbuffer[sand_offset_y + x] = {0};
+                    sandbuffer[sand_offset_y + x].heat = {0};
+                }
             }
         }
     }
@@ -111,12 +122,15 @@ void updateSandPhysics()
 
         for(unsigned int x = 1; x < sand_w - 1; x++)
         {
-            if(sandbuffer[sand_offset_y + sand_w + x - 1].remainingfuel == 0 &&
-                    sandbuffer[sand_offset_y + x].frame != frame)
+            if(sandbuffer[sand_offset_y + x].remainingfuel != 0)
             {
-                sandbuffer[sand_offset_y + sand_w - 1 + x] = sandbuffer[sand_offset_y + x];
-                sandbuffer[sand_offset_y + sand_w - 1 + x].frame = frame;
-                sandbuffer[sand_offset_y + x] = {0};
+                if(sandbuffer[sand_offset_y + sand_w + x - 1].remainingfuel == 0 &&
+                        sandbuffer[sand_offset_y + x].frame != frame)
+                {
+                    sandbuffer[sand_offset_y + sand_w - 1 + x] = sandbuffer[sand_offset_y + x];
+                    sandbuffer[sand_offset_y + sand_w - 1 + x].frame = frame;
+                    sandbuffer[sand_offset_y + x] = {0};
+                }
             }
         }
     }
@@ -131,15 +145,41 @@ void updateFire()
 
         for(unsigned int x = 1; x < sand_w - 1; x++)
         {
-            if(sandbuffer[sand_offset_y + x].remainingfuel > 0)
-            {
-                if(sandbuffer[sand_offset_y + x].heat > 50)
-                {
-                    sandbuffer[sand_offset_y + x].remainingfuel -= 1;
+            short fuel = sandbuffer[sand_offset_y + x].remainingfuel;
 
-                    if(sandbuffer[sand_offset_y + x].heat < 250)
+            if(fuel > 0)
+            {
+                unsigned char heat = sandbuffer[sand_offset_y + x].heat;
+
+                if(heat > 50)
+                {
+                    if(heat > 200)
                     {
-                        sandbuffer[sand_offset_y + x].heat += 2;
+                        fuel -= 4;
+                    }
+                    else if(heat > 100)
+                    {
+                        fuel -= 2;
+                    }
+                    else
+                    {
+                        fuel -= 1;
+                    }
+
+                    if(fuel <= 0)
+                    {
+                        fuel = 0;
+                        sandbuffer[sand_offset_y + x] = {0};
+                    }
+                    else
+                    {
+
+                        sandbuffer[sand_offset_y + x].remainingfuel = fuel;
+
+                        if(sandbuffer[sand_offset_y + x].heat < 250)
+                        {
+                            sandbuffer[sand_offset_y + x].heat += 2;
+                        }
                     }
                 }
             }
@@ -162,10 +202,11 @@ void updateFire()
             heat += sandbuffer[pos].heat;
             heat += sandbuffer[pos - 1].heat;
             heat += sandbuffer[pos + 1].heat;
+            heat += sandbuffer[pos - sand_w].heat * 2;
             heat += sandbuffer[pos + sand_w].heat * 6;
-            heat /= 9;
+            heat /= 11;
 
-            if(heat < oldheat && sandbuffer[pos].remainingfuel!=0)
+            if(heat < oldheat)// && sandbuffer[pos].remainingfuel!=0)
             {
                 heat = oldheat;
             }
