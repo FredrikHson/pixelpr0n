@@ -16,6 +16,7 @@ set(COMMON_SRC
     "src/sand.cpp"
     "src/burningsand.cpp"
     "src/fpscounter.cpp"
+    "src/drawshapes.cpp"
     )
 
 include_directories(
