@@ -27,6 +27,7 @@ void printhelp()
     printf("-f   fire effect\n");
     printf("-l   liquid effect\n");
     printf("-s   sand effect\n");
+    printf("-b   burning sand\n");
 }
 int main(int argc, char** argv)
 {
