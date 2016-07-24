@@ -45,7 +45,7 @@ void createnewfuelgrain()
     static int frames = 0;
     frames++;
 
-    if(frames > 50)
+    if(frames > 1500)
     {
         pos = rand() % sand_w;
         frames = 0;
