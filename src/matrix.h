@@ -22,6 +22,7 @@ public:
     void setRotR(float angle, float x, float y, float z);
     void setRot(float angle, float x, float y, float z);
     void setTranslation(float x, float y, float z);
+    void setPerspective(float fov, float aspect, float near, float far);
 
     // modify this matrix functions
     void rotate(float angle, float x, float y, float z);

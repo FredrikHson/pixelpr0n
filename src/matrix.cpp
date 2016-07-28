@@ -194,6 +194,30 @@ void matrix::translate(float x, float y, float z)
     *this = *this * translation;
 
 }
+void matrix::setPerspective(float fov, float aspect, float near, float far)
+{
+    float f = 1.0f / tan(fov / 2.0f);
+
+    mat[0]  = f / aspect;
+    mat[1]  = 0;
+    mat[2]  = 0;
+    mat[3]  = 0;
+
+    mat[4]  = 0;
+    mat[5]  = f;
+    mat[6]  = 0;
+    mat[7]  = 0;
+
+    mat[8]  = 0;
+    mat[9]  = 0;
+    mat[10] = (far + near) / (near - far);
+    mat[11] = (2 * far * near) / (near - far);
+
+    mat[12] = 0;
+    mat[13] = 0;
+    mat[14] = -1;
+    mat[15] = 0;
+}
 float& matrix::operator[](size_t idx)
 {
     return mat[idx];
