@@ -1,5 +1,5 @@
-#ifndef __VECTOR_H__
-#define __VECTOR_H__
+#ifndef __VEC4_H__
+#define __VEC4_H__
 #include <stdlib.h>
 
 class vec4
@@ -14,4 +14,4 @@ class vec4
 
 };
 
-#endif //__VECTOR_H__
+#endif //__VEC4_H__

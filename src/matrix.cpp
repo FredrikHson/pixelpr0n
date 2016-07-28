@@ -1,5 +1,5 @@
 #include "matrix.h"
-#include "vector.h"
+#include "vec4.h"
 #include <math.h>
 #include <stdio.h>
 

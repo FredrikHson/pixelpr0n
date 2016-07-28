@@ -1,4 +1,4 @@
-#include "vector.h"
+#include "vec4.h"
 
 float& vec4::operator[](size_t idx)
 {
