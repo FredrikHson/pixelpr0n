@@ -159,10 +159,10 @@ vec4 matrix::operator*(const vec4& v)
 {
     vec4 out;
 
-    out[0] = v[0] * mat[0]  + v[1] * mat[1]  + v[2] * mat[2]  + v[3] * mat[4];
-    out[1] = v[0] * mat[4]  + v[1] * mat[5]  + v[2] * mat[6]  + v[3] * mat[7];
-    out[2] = v[0] * mat[8]  + v[1] * mat[9]  + v[2] * mat[10] + v[3] * mat[11];
-    out[3] = v[0] * mat[12] + v[1] * mat[13] + v[2] * mat[14] + v[3] * mat[15];
+    out[0] = v[0] * mat[0]  + v[1] * mat[4]  + v[2] * mat[8]  + v[3] * mat[12];
+    out[1] = v[0] * mat[1]  + v[1] * mat[5]  + v[2] * mat[9]  + v[3] * mat[13];
+    out[2] = v[0] * mat[2]  + v[1] * mat[6]  + v[2] * mat[10] + v[3] * mat[14];
+    out[3] = v[0] * mat[3] + v[1] * mat[7] + v[2] * mat[11] + v[3] * mat[15];
 
     return out;
 }

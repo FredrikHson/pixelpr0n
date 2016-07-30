@@ -7,19 +7,23 @@
 #include "liquid.hpp"
 #include "globals.h"
 #include "fpscounter.h"
+#include "mesh.h"
 
 unsigned int width    = 320;
 unsigned int height   = 240;
 unsigned char* pixels = 0;
 float deltatime       = 1.0f;
 float abstime         = 0.0f;
+matrix perspective;
+matrix view;
 
 enum Effect
 {
     FIRE,
     LIQUID,
     SAND,
-    BURNING_SAND
+    BURNING_SAND,
+    MESH
 };
 
 void printhelp()
@@ -28,6 +32,7 @@ void printhelp()
     printf("-l   liquid effect\n");
     printf("-s   sand effect\n");
     printf("-b   burning sand\n");
+    printf("-m   wireframe mesh\n");
 }
 int main(int argc, char** argv)
 {
@@ -69,7 +74,7 @@ int main(int argc, char** argv)
         return 0;
     }
 
-    while((c = getopt(argc, argv, "hflsb")) != -1)
+    while((c = getopt(argc, argv, "hflsbm")) != -1)
     {
         switch(c)
         {
@@ -98,6 +103,13 @@ int main(int argc, char** argv)
                 effect = BURNING_SAND;
                 break;
             }
+
+            case 'm':
+            {
+                effect = MESH;
+                break;
+            }
+
 
             case 'h':
             default:
@@ -167,6 +179,11 @@ int main(int argc, char** argv)
         last = now;
         abstime += deltatime;
 
+        perspective.setPerspective(90, (float)width / (float)height, 0.2, 1000);
+        view.setIdentity();
+        view.translate(1.0, 1.0, 0);
+        view.scale(width / 2, height / 2, 1);
+
         switch(effect)
         {
             case FIRE:
@@ -190,6 +207,12 @@ int main(int argc, char** argv)
             case BURNING_SAND:
             {
                 drawBurningSand();
+                break;
+            }
+
+            case MESH:
+            {
+                drawMesh();
                 break;
             }
         }

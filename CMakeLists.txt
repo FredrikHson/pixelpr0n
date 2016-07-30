@@ -18,7 +18,8 @@ set(COMMON_SRC
     "src/fpscounter.cpp"
     "src/drawshapes.cpp"
     "src/matrix.cpp"
-    "src/vector.cpp"
+    "src/vec4.cpp"
+    "src/mesh.cpp"
     )
 
 include_directories(
