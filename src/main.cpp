@@ -9,11 +9,12 @@
 #include "fpscounter.h"
 #include "mesh.h"
 
-unsigned int width    = 320;
-unsigned int height   = 240;
-unsigned char* pixels = 0;
-float deltatime       = 1.0f;
-float abstime         = 0.0f;
+unsigned int width      = 320;
+unsigned int height     = 240;
+unsigned char* pixels   = 0;
+float* zbuffer = 0;
+float deltatime         = 1.0f;
+float abstime           = 0.0f;
 matrix perspective;
 matrix view;
 
@@ -65,6 +66,8 @@ int main(int argc, char** argv)
 
     pixels = new unsigned char[width * height * 4];
     memset(pixels, 0, width * height * 4);
+    zbuffer = new float[width * height];
+    memset(pixels, 0, width * height * 2);
     long last = 0;
     int c;
 
@@ -142,10 +145,17 @@ int main(int argc, char** argv)
                                 delete [] pixels;
                             }
 
+                            if(zbuffer)
+                            {
+                                delete [] zbuffer;
+                            }
+
                             width = event.window.data1 / 2;
                             height = event.window.data2 / 2;
                             pixels = new unsigned char[width * height * 4];
                             memset(pixels, 0, width * height * 4);
+                            zbuffer = new float[width * height ];
+                            memset(zbuffer, 0, width * height * 2);
 
                             if(texture)
                             {
@@ -179,9 +189,9 @@ int main(int argc, char** argv)
         last = now;
         abstime += deltatime;
 
-        perspective.setPerspective(90, (float)width / (float)height, 0.2, 1000);
+        perspective.setPerspective(90, (float)width / (float)height, 0.1, 1000);
         view.setIdentity();
-        view.translate(1.0, 1.0, 0);
+        view.translate(1.0, 1.0, 0.0);
         view.scale(width / 2, height / 2, 1);
 
         switch(effect)

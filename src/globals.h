@@ -6,6 +6,7 @@ class matrix;
 extern unsigned int width;
 extern unsigned int height;
 extern unsigned char* pixels;
+extern float* zbuffer;
 extern float deltatime;
 extern float abstime;
 extern matrix perspective;

@@ -20,10 +20,12 @@ set(COMMON_SRC
     "src/matrix.cpp"
     "src/vec4.cpp"
     "src/mesh.cpp"
+    "externals/fast_obj_loader/fast_obj_loader.cpp"
     )
 
 include_directories(
     "src/"
+    "externals/fast_obj_loader/"
     ${SDL_INCLUDE_DIR}
     )
 

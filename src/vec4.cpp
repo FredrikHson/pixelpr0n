@@ -41,7 +41,7 @@ void vec4::divw()
     v[0] /= v[3];
     v[1] /= v[3];
     v[2] /= v[3];
-    v[3] = 1;
+    v[3] /= 1;
 }
 vec4::vec4( float x, float y, float z)
 {

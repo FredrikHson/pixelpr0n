@@ -35,7 +35,12 @@ endif
 .PHONY: all build distclean clean
 .SILENT:
 
-all: build
+all: package
+
+package: build
+	mkdir -p bin
+	cp  ${BUILD_DIR}/$(UNAME)/$(BUILD_TYPE)/pixelpr0n bin/
+
 
 build: $(BUILD_DIR)/$(UNAME)/$(BUILD_TYPE)/Makefile
 	$(MAKE) -C $(BUILD_DIR)/$(UNAME)/$(BUILD_TYPE)
@@ -53,4 +58,3 @@ clean:
 
 distclean:
 	@rm -rf $(BUILD_DIR)
-
