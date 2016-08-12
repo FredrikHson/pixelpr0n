@@ -20,6 +20,7 @@ set(COMMON_SRC
     "src/matrix.cpp"
     "src/vec4.cpp"
     "src/mesh.cpp"
+    "src/voronoi.cpp"
     "externals/fast_obj_loader/fast_obj_loader.cpp"
     )
 

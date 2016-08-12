@@ -8,6 +8,7 @@
 #include "globals.h"
 #include "fpscounter.h"
 #include "mesh.h"
+#include "voronoi.h"
 
 unsigned int width      = 320;
 unsigned int height     = 240;
@@ -24,7 +25,8 @@ enum Effect
     LIQUID,
     SAND,
     BURNING_SAND,
-    MESH
+    MESH,
+    VORONOI
 };
 
 void printhelp()
@@ -77,7 +79,7 @@ int main(int argc, char** argv)
         return 0;
     }
 
-    while((c = getopt(argc, argv, "hflsbm")) != -1)
+    while((c = getopt(argc, argv, "hflsbmv")) != -1)
     {
         switch(c)
         {
@@ -110,6 +112,12 @@ int main(int argc, char** argv)
             case 'm':
             {
                 effect = MESH;
+                break;
+            }
+
+            case 'v':
+            {
+                effect = VORONOI;
                 break;
             }
 
@@ -225,6 +233,13 @@ int main(int argc, char** argv)
                 drawMesh();
                 break;
             }
+
+            case VORONOI:
+            {
+                drawVoronoi();
+                break;
+            }
+
         }
 
         SDL_UpdateTexture(texture, NULL, pixels, width * 4);
@@ -236,15 +251,29 @@ int main(int argc, char** argv)
     switch(effect)
     {
         case FIRE:
+        {
             destroyFire();
             break;
+        }
 
         case SAND:
+        {
             destroySand();
             break;
+        }
 
         case BURNING_SAND:
+        {
             destroyBurningSand();
+            break;
+        }
+
+        case VORONOI:
+        {
+            destroyVoronoi();
+            break;
+        }
+
 
         default:
             break;
