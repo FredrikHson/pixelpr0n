@@ -240,6 +240,25 @@ void drawVoronoi()
         }
     }
 
+    for(int i = 0; i < NUM_VORONOI_POINTS; i++)
+    {
+        vec4& p = voronoi_input_points[i];
+        int x = (int)p[0];
+        int y = (int)p[1];
+
+        if(x < 0 || x >= vb_w || y < 0 || y >= vb_h) // clipping
+        {
+            continue;
+        }
+
+        voronoi_pixel& pix = vbuffer[x + y * vb_w];
+        unsigned int offset = (x + y * width) * 4;
+        pixels[offset] = 255 - pixels[offset];
+        pixels[offset + 1] = 255 - pixels[offset + 1];
+        pixels[offset + 2] = 255 - pixels[offset + 2];
+
+    }
+
     printFps();
 }
 
