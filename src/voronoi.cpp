@@ -11,7 +11,7 @@ struct voronoi_pixel
     float distance;
     float x, y; // closest point
     unsigned char r, g, b;
-    unsigned char pad;
+    unsigned char inited;
 };
 
 voronoi_pixel* vbuffer = 0;
@@ -46,8 +46,17 @@ void clearVBuffer()
         vbuffer[i].r = 0;
         vbuffer[i].g = 0;
         vbuffer[i].b = 0;
+        vbuffer[i].inited = false;
     }
 }
+
+float distance(float x, float y, float x2, float y2)
+{
+    float dx = x - x2;
+    float dy = y - y2;
+    return sqrt(dx * dx + dy * dy);
+}
+
 void initVBufferFromPoints(vec4* points, size_t numPoints)
 {
     if(points == nullptr)
@@ -77,24 +86,90 @@ void initVBufferFromPoints(vec4* points, size_t numPoints)
 
         pix.x = p[0];
         pix.y = p[1];
-        float dx = p[0] - (float)x;
-        float dy = p[1] - (float)y;
-        pix.distance = sqrt(dx * dx + dy * dy);
+        pix.distance = distance(p[0], p[1], x, y);
+        pix.inited = true;
 
+    }
+}
+void voronoiStepP(int stepover)
+{
+    for(int i = vb_h - 1; i >= 0 ; i--)
+    {
+        unsigned int yoffset = i * vb_w;
+
+        for(int j = vb_w - 1; j >= 0; j--)
+        {
+            voronoi_pixel& p1 = vbuffer[j + yoffset];
+
+            if(j + stepover < vb_w)
+            {
+                voronoi_pixel& p2 = vbuffer[j + stepover + yoffset];
+                float dist = distance(j , i, p2.x, p2.y);
+
+                if(dist < p1.distance)
+                {
+                    p1 = p2;
+                    p1.distance = dist;
+                }
+            }
+
+            if(i + stepover < vb_h)
+            {
+                voronoi_pixel& p2 = vbuffer[j + stepover * vb_w + yoffset];
+                float dist = distance(j , i, p2.x, p2.y);
+
+                if(dist < p1.distance)
+                {
+                    p1 = p2;
+                    p1.distance = dist;
+                }
+            }
+        }
+    }
+
+}
+
+void voronoiStepN(int stepover)
+{
+    for(int i = 0; i < vb_h; i++)
+    {
+        unsigned int yoffset = i * vb_w;
+
+        for(int j = 0; j < vb_w; j++)
+        {
+            voronoi_pixel& p1 = vbuffer[j + yoffset];
+
+            if(j - stepover >= 0)
+            {
+                voronoi_pixel& p2 = vbuffer[j - stepover + yoffset];
+                float dist = distance(j , i, p2.x, p2.y);
+
+                if(dist < p1.distance)
+                {
+                    p1 = p2;
+                    p1.distance = dist;
+                }
+            }
+
+            if(i - stepover >= 0)
+            {
+                voronoi_pixel& p2 = vbuffer[j - stepover * vb_w + yoffset];
+                float dist = distance(j , i, p2.x, p2.y);
+
+                if(dist < p1.distance)
+                {
+                    p1 = p2;
+                    p1.distance = dist;
+                }
+            }
+        }
     }
 }
 void calculateVoronoi(int stepover = 8)
 {
 
-    for(int i = 0; i < vb_h; i++)
-    {
-        unsigned int y_offset = i * vb_w;
-
-        for(int j = 0; j < vb_w; j++)
-        {
-
-        }
-    }
+    voronoiStepP(stepover);
+    voronoiStepN(stepover);
 
     if(stepover > 1)
     {
@@ -120,6 +195,7 @@ void drawVoronoi()
 
     }
 
+    // move and wrap
     for(int i = 0; i < NUM_VORONOI_POINTS; i++)
     {
         vec4& p = voronoi_input_points[i];
