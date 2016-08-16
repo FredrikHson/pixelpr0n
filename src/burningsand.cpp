@@ -30,7 +30,7 @@ unsigned int sand_h = 0;
 
 void init_burningSand()
 {
-    if(sand_w != (width + 2) || sand_h != (height + 2));
+    if(sand_w != (width + 2) || sand_h != (height + 2))
     {
         destroyBurningSand();
         sand_w = width + 2; // +2 to avoid ifcases in the sand physics loop
