@@ -1,17 +1,4 @@
 BASE_DIR=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
-BUILD_DIR=$(BASE_DIR)/build/
-
-UNAME=$(shell uname)
-ifeq ($(UNAME), windows32)
-	MKDIR=mkdir
-	BUILD_TARGET="MinGW Makefiles"
-else ifeq ($(UNAME), windows64)
-	MKDIR=mkdir
-	BUILD_TARGET="MinGW Makefiles"
-else
-	MKDIR=mkdir -p
-	BUILD_TARGET="Unix Makefiles"
-endif
 
 BUILD_TYPE=debug
 BUILD_INFO=Debug
@@ -25,36 +12,60 @@ ifdef RELEASE
 	BUILD_INFO=Release
 	export RELEASE=1
 endif
-PLATFORM_LIST=default
-ifdef PLATFORM
-	PLATFORM_LIST=$(PLATFORM)
+
+ifdef PREFIX
+	CMAKE_PREFIX="-DCMAKE_INSTALL_PREFIX=$(shell readlink -f $(PREFIX))"
 endif
 
-#CMAKE_WIN32_TOOLCHAIN=${BASE_DIR}/toolchain-mingw32.cmake
-
-.PHONY: all build distclean clean
+.PHONY: all build distclean clean release release_dbg_info debug install verifybuildtype
 .SILENT:
 
-all: package
+all: release
 
-package: build
-	mkdir -p bin
-	cp  ${BUILD_DIR}/$(UNAME)/$(BUILD_TYPE)/pixelpr0n bin/
+build: build/Makefile
+	$(MAKE) -C build/
 
-
-build: $(BUILD_DIR)/$(UNAME)/$(BUILD_TYPE)/Makefile
-	$(MAKE) -C $(BUILD_DIR)/$(UNAME)/$(BUILD_TYPE)
-
-${BUILD_DIR}/$(UNAME)/$(BUILD_TYPE)/Makefile: CMakeLists.txt
-	-@$(MKDIR) "$(BUILD_DIR)/$(UNAME)/$(BUILD_TYPE)"
-	@cd "$(BUILD_DIR)/$(UNAME)/$(BUILD_TYPE)" && \
-		cmake -G $(BUILD_TARGET) \
+build/Makefile: CMakeLists.txt
+	@mkdir -p "build"
+	@cd "build" && \
+		cmake \
 		-DCMAKE_BUILD_TYPE=$(BUILD_INFO) \
+		-DCMAKE_EXPORT_COMPILE_COMMANDS=1 \
 		"$(BASE_DIR)" \
-		-DCMAKE_EXPORT_COMPILE_COMMANDS=1
+		 $(CMAKE_PREFIX)
+
+verifybuildtype: build/Makefile
+	if ! grep -q "^CMAKE_BUILD_TYPE:STRING=$(BUILD_TYPE)$$" build/CMakeCache.txt > /dev/null; \
+		then cd build;cmake -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) $(BASE_DIR); \
+		fi
+
+package:
+	mkdir -p bin
+	cp  build/pixelpr0n bin/
+
+debug:
+	$(MAKE) verifybuildtype DEBUG=1
+	$(MAKE) build DEBUG=1
+	$(MAKE) package
+
+release:
+	$(MAKE) verifybuildtype RELEASE=1
+	$(MAKE) build RELEASE=1
+	$(MAKE) package
+
+release_dbg_info:
+	$(MAKE) verifybuildtype RELEASE_DBG_INFO=1
+	$(MAKE) build RELEASE_DBG_INFO=1
+	$(MAKE) package
+
+install: build
+	$(MAKE) -C build install
+
+uninstall: build/install_manifest.txt
+	$(MAKE) -C build uninstall
 
 clean:
-	$(MAKE) -C "$(BUILD_DIR)/$(UNAME)/$(BUILD_TYPE)" clean
+	$(MAKE) -C "build" clean
 
 distclean:
-	@rm -rf $(BUILD_DIR)
+	@rm -rf build
